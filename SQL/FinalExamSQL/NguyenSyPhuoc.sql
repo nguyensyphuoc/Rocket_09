@@ -87,9 +87,18 @@ WHERE
             E.Email = 'nn03@gmail.com');
             
 -- Question 2c: Thống kê mỗi country, mỗi location có bao nhiêu employee đang làm việc.
-SELECT C.Country_Name, E.COUNT(Employee_ID) AS 'SO LUONG' FROM Country C, Employee E;
--- 
-SELECT L.Street_Address, L.Postal_Code, COUNT(E.Employee_ID) AS 'SO LUONG' FROM Location L JOIN Employee E ON L.Location_ID = E.Location_ID;
+
+SELECT 
+    C.Country_Name,
+    L.Street_Address,
+    COUNT(E.Employee_ID) AS 'SO LUONG'
+FROM
+    Country C
+        JOIN
+    Location L ON L.Country_ID = C.Country_ID
+        JOIN
+    Employee E ON E.Location_ID = E.Location_ID
+GROUP BY Country_Name , Street_Address;
 
 -- Question 3:Tạo trigger cho table Employee chỉ cho phép insert mỗi quốc gia có tối đa 10 employee
 DROP TRIGGER IF EXISTS emp_Insert; 
@@ -98,7 +107,7 @@ DELIMITER $$
     BEFORE INSERT ON Employee
 	FOR EACH ROW
     BEGIN 
-	IF (COUNT(NEW.Location_ID) > 10) THEN
+	IF (COUNT(NEW.Employee_ID) > 10) THEN
 				SIGNAL SQLSTATE '12345'
 				SET MESSAGE_TEXT = 'khong dc them qua 10 ban ghi';
 	END IF;
